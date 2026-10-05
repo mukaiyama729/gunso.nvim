@@ -50,14 +50,17 @@ local function env(name)
 	return (vim.env[name] or ""):lower()
 end
 
-local function is_kitty_terminal()
+local function supports_kitty_graphics_protocol()
 	local term = env("TERM")
 	local term_program = env("TERM_PROGRAM")
+	local iterm_session_id = vim.env.ITERM_SESSION_ID
 
 	return vim.env.KITTY_WINDOW_ID ~= nil
 		or term:find("kitty", 1, true) ~= nil
 		or term == "xterm-ghostty"
 		or term_program == "ghostty"
+		or term_program == "iterm.app"
+		or (iterm_session_id ~= nil and iterm_session_id ~= "")
 end
 
 local function is_sixel_terminal()
@@ -67,7 +70,6 @@ local function is_sixel_terminal()
 	return term_program == "wezterm"
 		or term:find("wezterm", 1, true) ~= nil
 		or term:match("^foot") ~= nil
-		or term:match("^xterm") ~= nil
 		or term:match("^contour") ~= nil
 		or term:match("^mlterm") ~= nil
 end
@@ -103,7 +105,9 @@ function M.resolve_image_backend()
 		vim.notify_once("Gunso: unknown image backend: " .. tostring(requested), vim.log.levels.WARN)
 	end
 
-	if is_kitty_terminal() then
+	-- iTerm2 supports Kitty's graphics protocol. Check it before the Sixel
+	-- heuristics because it commonly reports TERM=xterm-256color.
+	if supports_kitty_graphics_protocol() then
 		return "kitty"
 	end
 

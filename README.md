@@ -15,6 +15,13 @@ Sixel rendering also requires an ImageMagick build with Sixel support. See the
 [`image.nvim` installation guide](https://github.com/3rd/image.nvim#plugin-installation)
 for backend-specific setup.
 
+With `image.backend = "auto"`, Kitty, Ghostty, and iTerm2 use the Kitty graphics
+protocol. Sixel is selected only for recognized Sixel terminal names and when
+ImageMagick has Sixel support. A generic `xterm-256color` value is not enough to
+assume Sixel support; set `image.backend = "sixel"` explicitly for a Sixel-enabled
+xterm. If auto detection does not match your terminal or tmux/SSH environment,
+set `image.backend` to `"kitty"`, `"sixel"`, or `"ueberzug"` as appropriate.
+
 ## Installation with lazy.nvim
 
 Add this plugin specification to your Lazy plugin files:
